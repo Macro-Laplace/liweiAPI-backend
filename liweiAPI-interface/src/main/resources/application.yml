@@ -1,0 +1,10 @@
+server:
+  port: 8123
+  servlet:
+    context-path: /api
+
+# 引入自己的sdk后，只需要在此填上自己的账号密码就能通过验证调用接口
+liapi:
+  client:
+    access-key: liwei
+    secret-key: 12345678
