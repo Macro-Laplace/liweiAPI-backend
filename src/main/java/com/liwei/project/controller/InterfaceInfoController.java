@@ -2,18 +2,19 @@ package com.liwei.project.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.gson.Gson;
+import com.liwei.liweiapiclientsdk.client.LiApiClient;
 import com.liwei.project.annotation.AuthCheck;
-import com.liwei.project.common.BaseResponse;
-import com.liwei.project.common.DeleteRequest;
-import com.liwei.project.common.ErrorCode;
-import com.liwei.project.common.ResultUtils;
+import com.liwei.project.common.*;
 import com.liwei.project.constant.CommonConstant;
 import com.liwei.project.exception.BusinessException;
 import com.liwei.project.model.dto.interfaceinfo.InterfaceInfoAddRequest;
+import com.liwei.project.model.dto.interfaceinfo.InterfaceInfoInvokeRequest;
 import com.liwei.project.model.dto.interfaceinfo.InterfaceInfoQueryRequest;
 import com.liwei.project.model.dto.interfaceinfo.InterfaceInfoUpdateRequest;
 import com.liwei.project.model.entity.InterfaceInfo;
 import com.liwei.project.model.entity.User;
+import com.liwei.project.model.enums.InterfaceInfoStatusEnum;
 import com.liwei.project.service.InterfaceInfoService;
 import com.liwei.project.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +42,8 @@ public class InterfaceInfoController {
     @Resource
     private UserService userService;
 
-
+    @Resource
+    private LiApiClient liApiClient;
 
     /**
      * 创建
@@ -195,5 +197,100 @@ public class InterfaceInfoController {
     }
 
     // endregion
+
+    /**
+     * 发布
+     * @param idRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/online")
+    @AuthCheck(mustRole = "admin")
+    public BaseResponse<Boolean> onlineInterfaceInfo(@RequestBody IdRequest idRequest,
+                                                     HttpServletRequest request) {
+        if (idRequest == null || idRequest.getId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        long id = idRequest.getId();
+        // 判断是否存在
+        InterfaceInfo oldInterfaceInfo = interfaceInfoService.getById(id);
+        if (oldInterfaceInfo == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+        // 判断该接口是否可以调用
+        com.liwei.liweiapiclientsdk.model.User user = new com.liwei.liweiapiclientsdk.model.User();
+        user.setUsername("test");
+        String username = liApiClient.getUsernameByPost(user);
+        if (StringUtils.isBlank(username)) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "接口验证失败");
+        }
+        // 仅本人或管理员可修改
+        InterfaceInfo interfaceInfo = new InterfaceInfo();
+        interfaceInfo.setId(id);
+        interfaceInfo.setStatus(InterfaceInfoStatusEnum.ONLINE.getValue());
+        boolean result = interfaceInfoService.updateById(interfaceInfo);
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 下线
+     *
+     * @param idRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/offline")
+    @AuthCheck(mustRole = "admin")
+    public BaseResponse<Boolean> offlineInterfaceInfo(@RequestBody IdRequest idRequest,
+                                                      HttpServletRequest request) {
+        if (idRequest == null || idRequest.getId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        long id = idRequest.getId();
+        // 判断是否存在
+        InterfaceInfo oldInterfaceInfo = interfaceInfoService.getById(id);
+        if (oldInterfaceInfo == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+        // 仅本人或管理员可修改
+        InterfaceInfo interfaceInfo = new InterfaceInfo();
+        interfaceInfo.setId(id);
+        interfaceInfo.setStatus(InterfaceInfoStatusEnum.OFFLINE.getValue());
+        boolean result = interfaceInfoService.updateById(interfaceInfo);
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 测试调用
+     *
+     * @param interfaceInfoInvokeRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/invoke")
+    public BaseResponse<Object> invokeInterfaceInfo(@RequestBody InterfaceInfoInvokeRequest interfaceInfoInvokeRequest,
+                                                    HttpServletRequest request) {
+        if (interfaceInfoInvokeRequest == null || interfaceInfoInvokeRequest.getId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        long id = interfaceInfoInvokeRequest.getId();
+        String userRequestParams = interfaceInfoInvokeRequest.getUserRequestParams();
+        // 判断是否存在
+        InterfaceInfo oldInterfaceInfo = interfaceInfoService.getById(id);
+        if (oldInterfaceInfo == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+        if (oldInterfaceInfo.getStatus() == InterfaceInfoStatusEnum.OFFLINE.getValue()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "接口已关闭");
+        }
+        User loginUser = userService.getLoginUser(request);
+        String accessKey = loginUser.getAccessKey();
+        String secretKey = loginUser.getSecretKey();
+        LiApiClient tempClient = new LiApiClient(accessKey, secretKey);
+        Gson gson = new Gson();
+        com.liwei.liweiapiclientsdk.model.User user = gson.fromJson(userRequestParams, com.liwei.liweiapiclientsdk.model.User.class);
+        String usernameByPost = tempClient.getUsernameByPost(user);
+        return ResultUtils.success(usernameByPost);
+    }
 
 }
