@@ -1,7 +1,7 @@
 package com.liwei.project.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.liwei.project.model.entity.InterfaceInfo;
+import com.liwei.liweiAPIcommon.model.entity.InterfaceInfo;
 
 /**
  *

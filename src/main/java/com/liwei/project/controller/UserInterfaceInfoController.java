@@ -2,6 +2,7 @@ package com.liwei.project.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.liwei.liweiAPIcommon.model.entity.UserInterfaceInfo;
 import com.liwei.project.annotation.AuthCheck;
 import com.liwei.project.common.*;
 import com.liwei.project.constant.CommonConstant;
@@ -10,8 +11,7 @@ import com.liwei.project.exception.BusinessException;
 import com.liwei.project.model.dto.userinterfaceinfo.UserInterfaceInfoAddRequest;
 import com.liwei.project.model.dto.userinterfaceinfo.UserInterfaceInfoQueryRequest;
 import com.liwei.project.model.dto.userinterfaceinfo.UserInterfaceInfoUpdateRequest;
-import com.liwei.project.model.entity.User;
-import com.liwei.project.model.entity.UserInterfaceInfo;
+import com.liwei.liweiAPIcommon.model.entity.User;
 import com.liwei.project.service.UserInterfaceInfoService;
 import com.liwei.project.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -106,7 +106,7 @@ public class UserInterfaceInfoController {
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> updateUserInterfaceInfo(@RequestBody UserInterfaceInfoUpdateRequest userInterfaceInfoUpdateRequest,
-                                                     HttpServletRequest request) {
+                                                         HttpServletRequest request) {
         if (userInterfaceInfoUpdateRequest == null || userInterfaceInfoUpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }

@@ -4,15 +4,17 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.liwei.project.common.ErrorCode;
 import com.liwei.project.exception.BusinessException;
 import com.liwei.project.mapper.InterfaceInfoMapper;
-import com.liwei.project.model.entity.InterfaceInfo;
 import com.liwei.project.service.InterfaceInfoService;
+import com.liwei.liweiAPIcommon.model.entity.InterfaceInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-
+/**
+ *
+ */
 @Service
 public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, InterfaceInfo>
-        implements InterfaceInfoService {
+    implements InterfaceInfoService {
 
     @Override
     public void validInterfaceInfo(InterfaceInfo interfaceInfo, boolean add) {
@@ -30,6 +32,9 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "名称过长");
         }
     }
-
+    
 }
+
+
+
 

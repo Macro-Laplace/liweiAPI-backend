@@ -35,6 +35,7 @@ mybatis-plus:
       logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
 
 # 引入自己的sdk后，只需要在此填上自己的账号密码就能通过验证调用接口
+#此配置是调试用
 liapi:
   client:
     access-key: liwei

@@ -5,8 +5,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.liwei.project.common.ErrorCode;
 import com.liwei.project.exception.BusinessException;
 import com.liwei.project.mapper.UserInterfaceInfoMapper;
-import com.liwei.project.model.entity.UserInterfaceInfo;
 import com.liwei.project.service.UserInterfaceInfoService;
+import com.liwei.liweiAPIcommon.model.entity.UserInterfaceInfo;
 import org.springframework.stereotype.Service;
 
 /**
@@ -38,11 +38,11 @@ public class UserInterfaceInfoServiceImpl extends ServiceImpl<UserInterfaceInfoM
         if (interfaceInfoId <= 0 || userId <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        //这里可以加一个分布式锁，防止短时间大量调用
         UpdateWrapper<UserInterfaceInfo> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("interfaceInfoId", interfaceInfoId);
         updateWrapper.eq("userId", userId);
 
+//        updateWrapper.gt("leftNum", 0);
         updateWrapper.setSql("leftNum = leftNum - 1, totalNum = totalNum + 1");
         return this.update(updateWrapper);
     }

@@ -2,7 +2,7 @@ package com.liwei.project.service;
 
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.liwei.project.model.entity.User;
+import com.liwei.liweiAPIcommon.model.entity.User;
 
 import javax.servlet.http.HttpServletRequest;
 

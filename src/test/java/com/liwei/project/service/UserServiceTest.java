@@ -1,6 +1,6 @@
 package com.liwei.project.service;
 
-import com.liwei.project.model.entity.User;
+import com.liwei.liweiAPIcommon.model.entity.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

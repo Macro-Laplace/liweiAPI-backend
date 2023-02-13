@@ -2,6 +2,7 @@ package com.liwei.project.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.liwei.liweiAPIcommon.model.entity.User;
 import com.liwei.project.annotation.AuthCheck;
 import com.liwei.project.common.BaseResponse;
 import com.liwei.project.common.DeleteRequest;
@@ -13,7 +14,6 @@ import com.liwei.project.model.dto.post.PostAddRequest;
 import com.liwei.project.model.dto.post.PostQueryRequest;
 import com.liwei.project.model.dto.post.PostUpdateRequest;
 import com.liwei.project.model.entity.Post;
-import com.liwei.project.model.entity.User;
 import com.liwei.project.service.PostService;
 import com.liwei.project.service.UserService;
 import lombok.extern.slf4j.Slf4j;

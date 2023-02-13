@@ -1,10 +1,10 @@
 package com.liwei.project.aop;
 
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.liwei.liweiAPIcommon.model.entity.User;
 import com.liwei.project.annotation.AuthCheck;
 import com.liwei.project.common.ErrorCode;
 import com.liwei.project.exception.BusinessException;
-import com.liwei.project.model.entity.User;
 import com.liwei.project.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
