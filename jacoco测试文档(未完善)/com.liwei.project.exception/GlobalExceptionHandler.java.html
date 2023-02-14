@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GlobalExceptionHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com in liweiAPI-backend Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.liwei.project.exception</a> &gt; <span class="el_source">GlobalExceptionHandler.java</span></div><h1>GlobalExceptionHandler.java</h1><pre class="source lang-java linenums">package com.liwei.project.exception;
+
+import com.liwei.project.common.BaseResponse;
+import com.liwei.project.common.ErrorCode;
+import com.liwei.project.common.ResultUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+/**
+ * 全局异常处理器
+ *
+ * 
+ */
+@RestControllerAdvice
+<span class="fc" id="L16">@Slf4j</span>
+<span class="fc" id="L17">public class GlobalExceptionHandler {</span>
+
+    @ExceptionHandler(BusinessException.class)
+    public BaseResponse&lt;?&gt; businessExceptionHandler(BusinessException e) {
+<span class="nc" id="L21">        log.error(&quot;businessException: &quot; + e.getMessage(), e);</span>
+<span class="nc" id="L22">        return ResultUtils.error(e.getCode(), e.getMessage());</span>
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public BaseResponse&lt;?&gt; runtimeExceptionHandler(RuntimeException e) {
+<span class="nc" id="L27">        log.error(&quot;runtimeException&quot;, e);</span>
+<span class="nc" id="L28">        return ResultUtils.error(ErrorCode.SYSTEM_ERROR, e.getMessage());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

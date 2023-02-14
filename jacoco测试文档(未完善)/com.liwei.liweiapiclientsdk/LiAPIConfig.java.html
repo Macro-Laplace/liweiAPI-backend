@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LiAPIConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com in liweiAPI-backend Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.liwei.liweiapiclientsdk</a> &gt; <span class="el_source">LiAPIConfig.java</span></div><h1>LiAPIConfig.java</h1><pre class="source lang-java linenums">package com.liwei.liweiapiclientsdk;
+
+import com.liwei.liweiapiclientsdk.client.LiApiClient;
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+
+/**
+ * @author Macro-Laplace
+ * @version 1.0
+ * @date 2023/2/10 14:13
+ * @description: TODO
+ */
+@Configuration
+@ConfigurationProperties(&quot;liapi.client&quot;)
+<span class="pc bnc" id="L18" title="All 22 branches missed.">@Data</span>
+@ComponentScan
+public class LiAPIConfig {
+<span class="nc" id="L21">    private String accessKey;</span>
+
+<span class="nc" id="L23">    private String secretKey;</span>
+
+    @Bean
+    public LiApiClient yuApiClient() {
+<span class="fc" id="L27">        return new LiApiClient(accessKey, secretKey);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

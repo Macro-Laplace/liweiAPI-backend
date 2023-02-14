@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InnerInterfaceInfoServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com in liweiAPI-backend Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.liwei.project.service.impl.inner</a> &gt; <span class="el_source">InnerInterfaceInfoServiceImpl.java</span></div><h1>InnerInterfaceInfoServiceImpl.java</h1><pre class="source lang-java linenums">package com.liwei.project.service.impl.inner;
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.liwei.project.common.ErrorCode;
+import com.liwei.project.exception.BusinessException;
+import com.liwei.project.mapper.InterfaceInfoMapper;
+import com.liwei.liweiAPIcommon.model.entity.InterfaceInfo;
+import com.liwei.liweiAPIcommon.service.InnerInterfaceInfoService;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.dubbo.config.annotation.DubboService;
+
+import javax.annotation.Resource;
+
+@DubboService
+<span class="fc" id="L15">public class InnerInterfaceInfoServiceImpl implements InnerInterfaceInfoService {</span>
+
+    @Resource
+    private InterfaceInfoMapper interfaceInfoMapper;
+
+    @Override
+    public InterfaceInfo getInterfaceInfo(String url, String method) {
+<span class="nc bnc" id="L22" title="All 2 branches missed.">        if (StringUtils.isAnyBlank(url, method)) {</span>
+<span class="nc" id="L23">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L25">        QueryWrapper&lt;InterfaceInfo&gt; queryWrapper = new QueryWrapper&lt;&gt;();</span>
+<span class="nc" id="L26">        queryWrapper.eq(&quot;url&quot;, url);</span>
+<span class="nc" id="L27">        queryWrapper.eq(&quot;method&quot;, method);</span>
+<span class="nc" id="L28">        return interfaceInfoMapper.selectOne(queryWrapper);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

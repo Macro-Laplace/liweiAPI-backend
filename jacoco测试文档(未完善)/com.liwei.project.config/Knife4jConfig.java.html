@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Knife4jConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com in liweiAPI-backend Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.liwei.project.config</a> &gt; <span class="el_source">Knife4jConfig.java</span></div><h1>Knife4jConfig.java</h1><pre class="source lang-java linenums">package com.liwei.project.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import springfox.documentation.builders.ApiInfoBuilder;
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+/**
+ * Knife4j 接口文档配置
+ * https://doc.xiaominfo.com/knife4j/documentation/get_start.html
+ *
+ * 
+ */
+@Configuration
+@EnableSwagger2
+@Profile(&quot;dev&quot;)
+<span class="nc" id="L22">public class Knife4jConfig {</span>
+
+    @Bean
+    public Docket defaultApi2() {
+<span class="nc" id="L26">        return new Docket(DocumentationType.SWAGGER_2)</span>
+<span class="nc" id="L27">                .apiInfo(new ApiInfoBuilder()</span>
+<span class="nc" id="L28">                        .title(&quot;project-backend&quot;)</span>
+<span class="nc" id="L29">                        .description(&quot;project-backend&quot;)</span>
+<span class="nc" id="L30">                        .version(&quot;1.0&quot;)</span>
+<span class="nc" id="L31">                        .build())</span>
+<span class="nc" id="L32">                .select()</span>
+                // 指定 Controller 扫描包路径
+<span class="nc" id="L34">                .apis(RequestHandlerSelectors.basePackage(&quot;com.liwei.project.controller&quot;))</span>
+<span class="nc" id="L35">                .paths(PathSelectors.any())</span>
+<span class="nc" id="L36">                .build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

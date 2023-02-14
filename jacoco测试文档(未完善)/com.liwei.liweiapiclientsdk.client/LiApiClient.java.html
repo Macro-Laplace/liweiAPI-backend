@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LiApiClient.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com in liweiAPI-backend Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.liwei.liweiapiclientsdk.client</a> &gt; <span class="el_source">LiApiClient.java</span></div><h1>LiApiClient.java</h1><pre class="source lang-java linenums">package com.liwei.liweiapiclientsdk.client;
+
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONUtil;
+import com.liwei.liweiapiclientsdk.model.User;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.liwei.liweiapiclientsdk.utils.SignUtils.genSign;
+
+/**
+ * @author Macro-Laplace
+ * @version 1.0
+ * @date 2023/2/10 14:10
+ * @description: TODO
+ */
+public class LiApiClient {
+
+    private static final String GATEWAY_HOST = &quot;http://localhost:8090&quot;;
+
+    private String accessKey;
+
+    private String secretKey;
+
+<span class="fc" id="L29">    public LiApiClient(String accessKey, String secretKey) {</span>
+<span class="fc" id="L30">        this.accessKey = accessKey;</span>
+<span class="fc" id="L31">        this.secretKey = secretKey;</span>
+<span class="fc" id="L32">    }</span>
+
+    public String getNameByGet(String name) {
+        //可以单独传入http参数，这样参数会自动做URL编码，拼接在URL中
+<span class="nc" id="L36">        HashMap&lt;String, Object&gt; paramMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L37">        paramMap.put(&quot;name&quot;, name);</span>
+<span class="nc" id="L38">        String result = HttpUtil.get(GATEWAY_HOST + &quot;/api/name/&quot;, paramMap);</span>
+<span class="nc" id="L39">        System.out.println(result);</span>
+<span class="nc" id="L40">        return result;</span>
+    }
+
+    public String getNameByPost(String name) {
+        //可以单独传入http参数，这样参数会自动做URL编码，拼接在URL中
+<span class="nc" id="L45">        HashMap&lt;String, Object&gt; paramMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L46">        paramMap.put(&quot;name&quot;, name);</span>
+<span class="nc" id="L47">        String result = HttpUtil.post(GATEWAY_HOST + &quot;/api/name/&quot;, paramMap);</span>
+<span class="nc" id="L48">        System.out.println(result);</span>
+<span class="nc" id="L49">        return result;</span>
+    }
+
+    private Map&lt;String, String&gt; getHeaderMap(String body) {
+<span class="nc" id="L53">        Map&lt;String, String&gt; hashMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L54">        hashMap.put(&quot;accessKey&quot;, accessKey);</span>
+
+<span class="nc" id="L56">        hashMap.put(&quot;nonce&quot;, RandomUtil.randomNumbers(4));</span>
+<span class="nc" id="L57">        hashMap.put(&quot;body&quot;, body);</span>
+<span class="nc" id="L58">        hashMap.put(&quot;timestamp&quot;, String.valueOf(System.currentTimeMillis() / 1000));</span>
+<span class="nc" id="L59">        hashMap.put(&quot;sign&quot;, genSign(body, secretKey));</span>
+<span class="nc" id="L60">        return hashMap;</span>
+    }
+
+    public String getUsernameByPost(User user) {
+<span class="nc" id="L64">        String json = JSONUtil.toJsonStr(user);</span>
+<span class="nc" id="L65">        HttpResponse httpResponse = HttpRequest.post(GATEWAY_HOST + &quot;/api/name/user&quot;)</span>
+<span class="nc" id="L66">                .addHeaders(getHeaderMap(json))</span>
+<span class="nc" id="L67">                .body(json)</span>
+<span class="nc" id="L68">                .execute();</span>
+<span class="nc" id="L69">        System.out.println(httpResponse.getStatus());</span>
+<span class="nc" id="L70">        String result = httpResponse.body();</span>
+<span class="nc" id="L71">        System.out.println(result);</span>
+<span class="nc" id="L72">        return result;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

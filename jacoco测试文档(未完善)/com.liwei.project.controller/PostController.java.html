@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PostController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com in liweiAPI-backend Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.liwei.project.controller</a> &gt; <span class="el_source">PostController.java</span></div><h1>PostController.java</h1><pre class="source lang-java linenums">package com.liwei.project.controller;
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.liwei.liweiAPIcommon.model.entity.User;
+import com.liwei.project.annotation.AuthCheck;
+import com.liwei.project.common.BaseResponse;
+import com.liwei.project.common.DeleteRequest;
+import com.liwei.project.common.ErrorCode;
+import com.liwei.project.common.ResultUtils;
+import com.liwei.project.constant.CommonConstant;
+import com.liwei.project.exception.BusinessException;
+import com.liwei.project.model.dto.post.PostAddRequest;
+import com.liwei.project.model.dto.post.PostQueryRequest;
+import com.liwei.project.model.dto.post.PostUpdateRequest;
+import com.liwei.project.model.entity.Post;
+import com.liwei.project.service.PostService;
+import com.liwei.project.service.UserService;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+
+/**
+ * 帖子接口
+ *
+ * 
+ */
+@RestController
+@RequestMapping(&quot;/post&quot;)
+<span class="fc" id="L35">@Slf4j</span>
+<span class="fc" id="L36">public class PostController {</span>
+
+    @Resource
+    private PostService postService;
+
+    @Resource
+    private UserService userService;
+
+
+
+    /**
+     * 创建
+     *
+     * @param postAddRequest
+     * @param request
+     * @return
+     */
+    @PostMapping(&quot;/add&quot;)
+    public BaseResponse&lt;Long&gt; addPost(@RequestBody PostAddRequest postAddRequest, HttpServletRequest request) {
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        if (postAddRequest == null) {</span>
+<span class="nc" id="L56">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L58">        Post post = new Post();</span>
+<span class="nc" id="L59">        BeanUtils.copyProperties(postAddRequest, post);</span>
+        // 校验
+<span class="nc" id="L61">        postService.validPost(post, true);</span>
+<span class="nc" id="L62">        User loginUser = userService.getLoginUser(request);</span>
+<span class="nc" id="L63">        post.setUserId(loginUser.getId());</span>
+<span class="nc" id="L64">        boolean result = postService.save(post);</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (!result) {</span>
+<span class="nc" id="L66">            throw new BusinessException(ErrorCode.OPERATION_ERROR);</span>
+        }
+<span class="nc" id="L68">        long newPostId = post.getId();</span>
+<span class="nc" id="L69">        return ResultUtils.success(newPostId);</span>
+    }
+
+    /**
+     * 删除
+     *
+     * @param deleteRequest
+     * @param request
+     * @return
+     */
+    @PostMapping(&quot;/delete&quot;)
+    public BaseResponse&lt;Boolean&gt; deletePost(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
+<span class="nc bnc" id="L81" title="All 4 branches missed.">        if (deleteRequest == null || deleteRequest.getId() &lt;= 0) {</span>
+<span class="nc" id="L82">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L84">        User user = userService.getLoginUser(request);</span>
+<span class="nc" id="L85">        long id = deleteRequest.getId();</span>
+        // 判断是否存在
+<span class="nc" id="L87">        Post oldPost = postService.getById(id);</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (oldPost == null) {</span>
+<span class="nc" id="L89">            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);</span>
+        }
+        // 仅本人或管理员可删除
+<span class="nc bnc" id="L92" title="All 4 branches missed.">        if (!oldPost.getUserId().equals(user.getId()) &amp;&amp; !userService.isAdmin(request)) {</span>
+<span class="nc" id="L93">            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);</span>
+        }
+<span class="nc" id="L95">        boolean b = postService.removeById(id);</span>
+<span class="nc" id="L96">        return ResultUtils.success(b);</span>
+    }
+
+    /**
+     * 更新
+     *
+     * @param postUpdateRequest
+     * @param request
+     * @return
+     */
+    @PostMapping(&quot;/update&quot;)
+    public BaseResponse&lt;Boolean&gt; updatePost(@RequestBody PostUpdateRequest postUpdateRequest,
+                                            HttpServletRequest request) {
+<span class="nc bnc" id="L109" title="All 4 branches missed.">        if (postUpdateRequest == null || postUpdateRequest.getId() &lt;= 0) {</span>
+<span class="nc" id="L110">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L112">        Post post = new Post();</span>
+<span class="nc" id="L113">        BeanUtils.copyProperties(postUpdateRequest, post);</span>
+        // 参数校验
+<span class="nc" id="L115">        postService.validPost(post, false);</span>
+<span class="nc" id="L116">        User user = userService.getLoginUser(request);</span>
+<span class="nc" id="L117">        long id = postUpdateRequest.getId();</span>
+        // 判断是否存在
+<span class="nc" id="L119">        Post oldPost = postService.getById(id);</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        if (oldPost == null) {</span>
+<span class="nc" id="L121">            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);</span>
+        }
+        // 仅本人或管理员可修改
+<span class="nc bnc" id="L124" title="All 4 branches missed.">        if (!oldPost.getUserId().equals(user.getId()) &amp;&amp; !userService.isAdmin(request)) {</span>
+<span class="nc" id="L125">            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);</span>
+        }
+<span class="nc" id="L127">        boolean result = postService.updateById(post);</span>
+<span class="nc" id="L128">        return ResultUtils.success(result);</span>
+    }
+
+    /**
+     * 根据 id 获取
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping(&quot;/get&quot;)
+    public BaseResponse&lt;Post&gt; getPostById(long id) {
+<span class="nc bnc" id="L139" title="All 2 branches missed.">        if (id &lt;= 0) {</span>
+<span class="nc" id="L140">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L142">        Post post = postService.getById(id);</span>
+<span class="nc" id="L143">        return ResultUtils.success(post);</span>
+    }
+
+    /**
+     * 获取列表（仅管理员可使用）
+     *
+     * @param postQueryRequest
+     * @return
+     */
+    @AuthCheck(mustRole = &quot;admin&quot;)
+    @GetMapping(&quot;/list&quot;)
+    public BaseResponse&lt;List&lt;Post&gt;&gt; listPost(PostQueryRequest postQueryRequest) {
+<span class="nc" id="L155">        Post postQuery = new Post();</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">        if (postQueryRequest != null) {</span>
+<span class="nc" id="L157">            BeanUtils.copyProperties(postQueryRequest, postQuery);</span>
+        }
+<span class="nc" id="L159">        QueryWrapper&lt;Post&gt; queryWrapper = new QueryWrapper&lt;&gt;(postQuery);</span>
+<span class="nc" id="L160">        List&lt;Post&gt; postList = postService.list(queryWrapper);</span>
+<span class="nc" id="L161">        return ResultUtils.success(postList);</span>
+    }
+
+    /**
+     * 分页获取列表
+     *
+     * @param postQueryRequest
+     * @param request
+     * @return
+     */
+    @GetMapping(&quot;/list/page&quot;)
+    public BaseResponse&lt;Page&lt;Post&gt;&gt; listPostByPage(PostQueryRequest postQueryRequest, HttpServletRequest request) {
+<span class="nc bnc" id="L173" title="All 2 branches missed.">        if (postQueryRequest == null) {</span>
+<span class="nc" id="L174">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L176">        Post postQuery = new Post();</span>
+<span class="nc" id="L177">        BeanUtils.copyProperties(postQueryRequest, postQuery);</span>
+<span class="nc" id="L178">        long current = postQueryRequest.getCurrent();</span>
+<span class="nc" id="L179">        long size = postQueryRequest.getPageSize();</span>
+<span class="nc" id="L180">        String sortField = postQueryRequest.getSortField();</span>
+<span class="nc" id="L181">        String sortOrder = postQueryRequest.getSortOrder();</span>
+<span class="nc" id="L182">        String content = postQuery.getContent();</span>
+        // content 需支持模糊搜索
+<span class="nc" id="L184">        postQuery.setContent(null);</span>
+        // 限制爬虫
+<span class="nc bnc" id="L186" title="All 2 branches missed.">        if (size &gt; 50) {</span>
+<span class="nc" id="L187">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L189">        QueryWrapper&lt;Post&gt; queryWrapper = new QueryWrapper&lt;&gt;(postQuery);</span>
+<span class="nc" id="L190">        queryWrapper.like(StringUtils.isNotBlank(content), &quot;content&quot;, content);</span>
+<span class="nc" id="L191">        queryWrapper.orderBy(StringUtils.isNotBlank(sortField),</span>
+<span class="nc" id="L192">                sortOrder.equals(CommonConstant.SORT_ORDER_ASC), sortField);</span>
+<span class="nc" id="L193">        Page&lt;Post&gt; postPage = postService.page(new Page&lt;&gt;(current, size), queryWrapper);</span>
+<span class="nc" id="L194">        return ResultUtils.success(postPage);</span>
+    }
+
+    // endregion
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

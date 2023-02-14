@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LogInterceptor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com in liweiAPI-backend Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.liwei.project.aop</a> &gt; <span class="el_source">LogInterceptor.java</span></div><h1>LogInterceptor.java</h1><pre class="source lang-java linenums">package com.liwei.project.aop;
+
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StopWatch;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.UUID;
+
+/**
+ * 请求响应日志 AOP
+ *
+ * 
+ **/
+@Aspect
+@Component
+<span class="fc" id="L24">@Slf4j</span>
+<span class="fc" id="L25">public class LogInterceptor {</span>
+
+    /**
+     * 执行拦截
+     */
+    @Around(&quot;execution(* com.liwei.project.controller.*.*(..))&quot;)
+    public Object doInterceptor(ProceedingJoinPoint point) throws Throwable {
+        // 计时
+<span class="nc" id="L33">        StopWatch stopWatch = new StopWatch();</span>
+<span class="nc" id="L34">        stopWatch.start();</span>
+        // 获取请求路径
+<span class="nc" id="L36">        RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();</span>
+<span class="nc" id="L37">        HttpServletRequest httpServletRequest = ((ServletRequestAttributes) requestAttributes).getRequest();</span>
+        // 生成请求唯一 id
+<span class="nc" id="L39">        String requestId = UUID.randomUUID().toString();</span>
+<span class="nc" id="L40">        String url = httpServletRequest.getRequestURI();</span>
+        // 获取请求参数
+<span class="nc" id="L42">        Object[] args = point.getArgs();</span>
+<span class="nc" id="L43">        String reqParam = &quot;[&quot; + StringUtils.join(args, &quot;, &quot;) + &quot;]&quot;;</span>
+        // 输出请求日志
+<span class="nc" id="L45">        log.info(&quot;request start，id: {}, path: {}, ip: {}, params: {}&quot;, requestId, url,</span>
+<span class="nc" id="L46">                httpServletRequest.getRemoteHost(), reqParam);</span>
+        // 执行原方法
+<span class="nc" id="L48">        Object result = point.proceed();</span>
+        // 输出响应日志
+<span class="nc" id="L50">        stopWatch.stop();</span>
+<span class="nc" id="L51">        long totalTimeMillis = stopWatch.getTotalTimeMillis();</span>
+<span class="nc" id="L52">        log.info(&quot;request end, id: {}, cost: {}ms&quot;, requestId, totalTimeMillis);</span>
+<span class="nc" id="L53">        return result;</span>
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

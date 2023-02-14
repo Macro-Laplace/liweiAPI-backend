@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com in liweiAPI-backend Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.liwei.project.controller</a> &gt; <span class="el_source">UserController.java</span></div><h1>UserController.java</h1><pre class="source lang-java linenums">package com.liwei.project.controller;
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.plugins.pagination.PageDTO;
+import com.liwei.liweiAPIcommon.model.entity.User;
+import com.liwei.project.common.BaseResponse;
+import com.liwei.project.common.DeleteRequest;
+import com.liwei.project.common.ErrorCode;
+import com.liwei.project.common.ResultUtils;
+import com.liwei.project.exception.BusinessException;
+import com.liwei.project.model.dto.user.*;
+import com.liwei.project.model.vo.UserVO;
+import com.liwei.project.service.UserService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * 用户接口
+ *
+ * 
+ */
+@RestController
+@RequestMapping(&quot;/user&quot;)
+<span class="fc" id="L31">public class UserController {</span>
+
+    @Resource
+    private UserService userService;
+
+
+
+    /**
+     * 用户注册
+     *
+     * @param userRegisterRequest
+     * @return
+     */
+    @PostMapping(&quot;/register&quot;)
+    public BaseResponse&lt;Long&gt; userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        if (userRegisterRequest == null) {</span>
+<span class="nc" id="L47">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L49">        String userAccount = userRegisterRequest.getUserAccount();</span>
+<span class="nc" id="L50">        String userPassword = userRegisterRequest.getUserPassword();</span>
+<span class="nc" id="L51">        String checkPassword = userRegisterRequest.getCheckPassword();</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {</span>
+<span class="nc" id="L53">            return null;</span>
+        }
+<span class="nc" id="L55">        long result = userService.userRegister(userAccount, userPassword, checkPassword);</span>
+<span class="nc" id="L56">        return ResultUtils.success(result);</span>
+    }
+
+    /**
+     * 用户登录
+     *
+     * @param userLoginRequest
+     * @param request
+     * @return
+     */
+    @PostMapping(&quot;/login&quot;)
+    public BaseResponse&lt;User&gt; userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (userLoginRequest == null) {</span>
+<span class="nc" id="L69">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L71">        String userAccount = userLoginRequest.getUserAccount();</span>
+<span class="nc" id="L72">        String userPassword = userLoginRequest.getUserPassword();</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        if (StringUtils.isAnyBlank(userAccount, userPassword)) {</span>
+<span class="nc" id="L74">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L76">        User user = userService.userLogin(userAccount, userPassword, request);</span>
+<span class="nc" id="L77">        return ResultUtils.success(user);</span>
+    }
+
+    /**
+     * 用户注销
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping(&quot;/logout&quot;)
+    public BaseResponse&lt;Boolean&gt; userLogout(HttpServletRequest request) {
+<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (request == null) {</span>
+<span class="nc" id="L89">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L91">        boolean result = userService.userLogout(request);</span>
+<span class="nc" id="L92">        return ResultUtils.success(result);</span>
+    }
+
+    /**
+     * 获取当前登录用户
+     *
+     * @param request
+     * @return
+     */
+    @GetMapping(&quot;/get/login&quot;)
+    public BaseResponse&lt;UserVO&gt; getLoginUser(HttpServletRequest request) {
+<span class="nc" id="L103">        User user = userService.getLoginUser(request);</span>
+<span class="nc" id="L104">        UserVO userVO = new UserVO();</span>
+<span class="nc" id="L105">        BeanUtils.copyProperties(user, userVO);</span>
+<span class="nc" id="L106">        return ResultUtils.success(userVO);</span>
+    }
+
+    // endregion
+
+    // region 增删改查
+
+    /**
+     * 创建用户
+     *
+     * @param userAddRequest
+     * @param request
+     * @return
+     */
+    @PostMapping(&quot;/add&quot;)
+    public BaseResponse&lt;Long&gt; addUser(@RequestBody UserAddRequest userAddRequest, HttpServletRequest request) {
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (userAddRequest == null) {</span>
+<span class="nc" id="L123">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L125">        User user = new User();</span>
+<span class="nc" id="L126">        BeanUtils.copyProperties(userAddRequest, user);</span>
+<span class="nc" id="L127">        boolean result = userService.save(user);</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        if (!result) {</span>
+<span class="nc" id="L129">            throw new BusinessException(ErrorCode.OPERATION_ERROR);</span>
+        }
+<span class="nc" id="L131">        return ResultUtils.success(user.getId());</span>
+    }
+
+    /**
+     * 删除用户
+     *
+     * @param deleteRequest
+     * @param request
+     * @return
+     */
+    @PostMapping(&quot;/delete&quot;)
+    public BaseResponse&lt;Boolean&gt; deleteUser(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
+<span class="nc bnc" id="L143" title="All 4 branches missed.">        if (deleteRequest == null || deleteRequest.getId() &lt;= 0) {</span>
+<span class="nc" id="L144">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L146">        boolean b = userService.removeById(deleteRequest.getId());</span>
+<span class="nc" id="L147">        return ResultUtils.success(b);</span>
+    }
+
+    /**
+     * 更新用户
+     *
+     * @param userUpdateRequest
+     * @param request
+     * @return
+     */
+    @PostMapping(&quot;/update&quot;)
+    public BaseResponse&lt;Boolean&gt; updateUser(@RequestBody UserUpdateRequest userUpdateRequest, HttpServletRequest request) {
+<span class="nc bnc" id="L159" title="All 4 branches missed.">        if (userUpdateRequest == null || userUpdateRequest.getId() == null) {</span>
+<span class="nc" id="L160">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L162">        User user = new User();</span>
+<span class="nc" id="L163">        BeanUtils.copyProperties(userUpdateRequest, user);</span>
+<span class="nc" id="L164">        boolean result = userService.updateById(user);</span>
+<span class="nc" id="L165">        return ResultUtils.success(result);</span>
+    }
+
+    /**
+     * 根据 id 获取用户
+     *
+     * @param id
+     * @param request
+     * @return
+     */
+    @GetMapping(&quot;/get&quot;)
+    public BaseResponse&lt;UserVO&gt; getUserById(int id, HttpServletRequest request) {
+<span class="nc bnc" id="L177" title="All 2 branches missed.">        if (id &lt;= 0) {</span>
+<span class="nc" id="L178">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L180">        User user = userService.getById(id);</span>
+<span class="nc" id="L181">        UserVO userVO = new UserVO();</span>
+<span class="nc" id="L182">        BeanUtils.copyProperties(user, userVO);</span>
+<span class="nc" id="L183">        return ResultUtils.success(userVO);</span>
+    }
+
+    /**
+     * 获取用户列表
+     *
+     * @param userQueryRequest
+     * @param request
+     * @return
+     */
+    @GetMapping(&quot;/list&quot;)
+    public BaseResponse&lt;List&lt;UserVO&gt;&gt; listUser(UserQueryRequest userQueryRequest, HttpServletRequest request) {
+<span class="nc" id="L195">        User userQuery = new User();</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">        if (userQueryRequest != null) {</span>
+<span class="nc" id="L197">            BeanUtils.copyProperties(userQueryRequest, userQuery);</span>
+        }
+<span class="nc" id="L199">        QueryWrapper&lt;User&gt; queryWrapper = new QueryWrapper&lt;&gt;(userQuery);</span>
+<span class="nc" id="L200">        List&lt;User&gt; userList = userService.list(queryWrapper);</span>
+<span class="nc" id="L201">        List&lt;UserVO&gt; userVOList = userList.stream().map(user -&gt; {</span>
+<span class="nc" id="L202">            UserVO userVO = new UserVO();</span>
+<span class="nc" id="L203">            BeanUtils.copyProperties(user, userVO);</span>
+<span class="nc" id="L204">            return userVO;</span>
+<span class="nc" id="L205">        }).collect(Collectors.toList());</span>
+<span class="nc" id="L206">        return ResultUtils.success(userVOList);</span>
+    }
+
+    /**
+     * 分页获取用户列表
+     *
+     * @param userQueryRequest
+     * @param request
+     * @return
+     */
+    @GetMapping(&quot;/list/page&quot;)
+    public BaseResponse&lt;Page&lt;UserVO&gt;&gt; listUserByPage(UserQueryRequest userQueryRequest, HttpServletRequest request) {
+<span class="nc" id="L218">        long current = 1;</span>
+<span class="nc" id="L219">        long size = 10;</span>
+<span class="nc" id="L220">        User userQuery = new User();</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">        if (userQueryRequest != null) {</span>
+<span class="nc" id="L222">            BeanUtils.copyProperties(userQueryRequest, userQuery);</span>
+<span class="nc" id="L223">            current = userQueryRequest.getCurrent();</span>
+<span class="nc" id="L224">            size = userQueryRequest.getPageSize();</span>
+        }
+<span class="nc" id="L226">        QueryWrapper&lt;User&gt; queryWrapper = new QueryWrapper&lt;&gt;(userQuery);</span>
+<span class="nc" id="L227">        Page&lt;User&gt; userPage = userService.page(new Page&lt;&gt;(current, size), queryWrapper);</span>
+<span class="nc" id="L228">        Page&lt;UserVO&gt; userVOPage = new PageDTO&lt;&gt;(userPage.getCurrent(), userPage.getSize(), userPage.getTotal());</span>
+<span class="nc" id="L229">        List&lt;UserVO&gt; userVOList = userPage.getRecords().stream().map(user -&gt; {</span>
+<span class="nc" id="L230">            UserVO userVO = new UserVO();</span>
+<span class="nc" id="L231">            BeanUtils.copyProperties(user, userVO);</span>
+<span class="nc" id="L232">            return userVO;</span>
+<span class="nc" id="L233">        }).collect(Collectors.toList());</span>
+<span class="nc" id="L234">        userVOPage.setRecords(userVOList);</span>
+<span class="nc" id="L235">        return ResultUtils.success(userVOPage);</span>
+    }
+
+    // endregion
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

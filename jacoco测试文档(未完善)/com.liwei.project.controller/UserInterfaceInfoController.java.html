@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserInterfaceInfoController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com in liweiAPI-backend Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.liwei.project.controller</a> &gt; <span class="el_source">UserInterfaceInfoController.java</span></div><h1>UserInterfaceInfoController.java</h1><pre class="source lang-java linenums">package com.liwei.project.controller;
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.liwei.liweiAPIcommon.model.entity.UserInterfaceInfo;
+import com.liwei.project.annotation.AuthCheck;
+import com.liwei.project.common.*;
+import com.liwei.project.constant.CommonConstant;
+import com.liwei.project.constant.UserConstant;
+import com.liwei.project.exception.BusinessException;
+import com.liwei.project.model.dto.userinterfaceinfo.UserInterfaceInfoAddRequest;
+import com.liwei.project.model.dto.userinterfaceinfo.UserInterfaceInfoQueryRequest;
+import com.liwei.project.model.dto.userinterfaceinfo.UserInterfaceInfoUpdateRequest;
+import com.liwei.liweiAPIcommon.model.entity.User;
+import com.liwei.project.service.UserInterfaceInfoService;
+import com.liwei.project.service.UserService;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+
+/**
+ * 接口管理
+ *
+ * @author liwei
+ */
+@RestController
+@RequestMapping(&quot;/userInterfaceInfo&quot;)
+<span class="fc" id="L33">@Slf4j</span>
+<span class="fc" id="L34">public class UserInterfaceInfoController {</span>
+
+    @Resource
+    private UserInterfaceInfoService userInterfaceInfoService;
+
+    @Resource
+    private UserService userService;
+
+    // region 增删改查
+
+    /**
+     * 创建
+     *
+     * @param userInterfaceInfoAddRequest
+     * @param request
+     * @return
+     */
+    @PostMapping(&quot;/add&quot;)
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse&lt;Long&gt; addUserInterfaceInfo(@RequestBody UserInterfaceInfoAddRequest userInterfaceInfoAddRequest, HttpServletRequest request) {
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        if (userInterfaceInfoAddRequest == null) {</span>
+<span class="nc" id="L55">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L57">        UserInterfaceInfo userInterfaceInfo = new UserInterfaceInfo();</span>
+<span class="nc" id="L58">        BeanUtils.copyProperties(userInterfaceInfoAddRequest, userInterfaceInfo);</span>
+        // 校验
+<span class="nc" id="L60">        userInterfaceInfoService.validUserInterfaceInfo(userInterfaceInfo, true);</span>
+<span class="nc" id="L61">        User loginUser = userService.getLoginUser(request);</span>
+<span class="nc" id="L62">        userInterfaceInfo.setUserId(loginUser.getId());</span>
+<span class="nc" id="L63">        boolean result = userInterfaceInfoService.save(userInterfaceInfo);</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (!result) {</span>
+<span class="nc" id="L65">            throw new BusinessException(ErrorCode.OPERATION_ERROR);</span>
+        }
+<span class="nc" id="L67">        long newUserInterfaceInfoId = userInterfaceInfo.getId();</span>
+<span class="nc" id="L68">        return ResultUtils.success(newUserInterfaceInfoId);</span>
+    }
+
+    /**
+     * 删除
+     *
+     * @param deleteRequest
+     * @param request
+     * @return
+     */
+    @PostMapping(&quot;/delete&quot;)
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse&lt;Boolean&gt; deleteUserInterfaceInfo(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
+<span class="nc bnc" id="L81" title="All 4 branches missed.">        if (deleteRequest == null || deleteRequest.getId() &lt;= 0) {</span>
+<span class="nc" id="L82">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L84">        User user = userService.getLoginUser(request);</span>
+<span class="nc" id="L85">        long id = deleteRequest.getId();</span>
+        // 判断是否存在
+<span class="nc" id="L87">        UserInterfaceInfo oldUserInterfaceInfo = userInterfaceInfoService.getById(id);</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (oldUserInterfaceInfo == null) {</span>
+<span class="nc" id="L89">            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);</span>
+        }
+        // 仅本人或管理员可删除
+<span class="nc bnc" id="L92" title="All 4 branches missed.">        if (!oldUserInterfaceInfo.getUserId().equals(user.getId()) &amp;&amp; !userService.isAdmin(request)) {</span>
+<span class="nc" id="L93">            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);</span>
+        }
+<span class="nc" id="L95">        boolean b = userInterfaceInfoService.removeById(id);</span>
+<span class="nc" id="L96">        return ResultUtils.success(b);</span>
+    }
+
+    /**
+     * 更新
+     *
+     * @param userInterfaceInfoUpdateRequest
+     * @param request
+     * @return
+     */
+    @PostMapping(&quot;/update&quot;)
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse&lt;Boolean&gt; updateUserInterfaceInfo(@RequestBody UserInterfaceInfoUpdateRequest userInterfaceInfoUpdateRequest,
+                                                         HttpServletRequest request) {
+<span class="nc bnc" id="L110" title="All 4 branches missed.">        if (userInterfaceInfoUpdateRequest == null || userInterfaceInfoUpdateRequest.getId() &lt;= 0) {</span>
+<span class="nc" id="L111">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L113">        UserInterfaceInfo userInterfaceInfo = new UserInterfaceInfo();</span>
+<span class="nc" id="L114">        BeanUtils.copyProperties(userInterfaceInfoUpdateRequest, userInterfaceInfo);</span>
+        // 参数校验
+<span class="nc" id="L116">        userInterfaceInfoService.validUserInterfaceInfo(userInterfaceInfo, false);</span>
+<span class="nc" id="L117">        User user = userService.getLoginUser(request);</span>
+<span class="nc" id="L118">        long id = userInterfaceInfoUpdateRequest.getId();</span>
+        // 判断是否存在
+<span class="nc" id="L120">        UserInterfaceInfo oldUserInterfaceInfo = userInterfaceInfoService.getById(id);</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">        if (oldUserInterfaceInfo == null) {</span>
+<span class="nc" id="L122">            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);</span>
+        }
+        // 仅本人或管理员可修改
+<span class="nc bnc" id="L125" title="All 4 branches missed.">        if (!oldUserInterfaceInfo.getUserId().equals(user.getId()) &amp;&amp; !userService.isAdmin(request)) {</span>
+<span class="nc" id="L126">            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);</span>
+        }
+<span class="nc" id="L128">        boolean result = userInterfaceInfoService.updateById(userInterfaceInfo);</span>
+<span class="nc" id="L129">        return ResultUtils.success(result);</span>
+    }
+
+    /**
+     * 根据 id 获取
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping(&quot;/get&quot;)
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse&lt;UserInterfaceInfo&gt; getUserInterfaceInfoById(long id) {
+<span class="nc bnc" id="L141" title="All 2 branches missed.">        if (id &lt;= 0) {</span>
+<span class="nc" id="L142">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L144">        UserInterfaceInfo userInterfaceInfo = userInterfaceInfoService.getById(id);</span>
+<span class="nc" id="L145">        return ResultUtils.success(userInterfaceInfo);</span>
+    }
+
+    /**
+     * 获取列表（仅管理员可使用）
+     *
+     * @param userInterfaceInfoQueryRequest
+     * @return
+     */
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @GetMapping(&quot;/list&quot;)
+    public BaseResponse&lt;List&lt;UserInterfaceInfo&gt;&gt; listUserInterfaceInfo(UserInterfaceInfoQueryRequest userInterfaceInfoQueryRequest) {
+<span class="nc" id="L157">        UserInterfaceInfo userInterfaceInfoQuery = new UserInterfaceInfo();</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        if (userInterfaceInfoQueryRequest != null) {</span>
+<span class="nc" id="L159">            BeanUtils.copyProperties(userInterfaceInfoQueryRequest, userInterfaceInfoQuery);</span>
+        }
+<span class="nc" id="L161">        QueryWrapper&lt;UserInterfaceInfo&gt; queryWrapper = new QueryWrapper&lt;&gt;(userInterfaceInfoQuery);</span>
+<span class="nc" id="L162">        List&lt;UserInterfaceInfo&gt; userInterfaceInfoList = userInterfaceInfoService.list(queryWrapper);</span>
+<span class="nc" id="L163">        return ResultUtils.success(userInterfaceInfoList);</span>
+    }
+
+    /**
+     * 分页获取列表
+     *
+     * @param userInterfaceInfoQueryRequest
+     * @param request
+     * @return
+     */
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @GetMapping(&quot;/list/page&quot;)
+    public BaseResponse&lt;Page&lt;UserInterfaceInfo&gt;&gt; listUserInterfaceInfoByPage(UserInterfaceInfoQueryRequest userInterfaceInfoQueryRequest, HttpServletRequest request) {
+<span class="nc bnc" id="L176" title="All 2 branches missed.">        if (userInterfaceInfoQueryRequest == null) {</span>
+<span class="nc" id="L177">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L179">        UserInterfaceInfo userInterfaceInfoQuery = new UserInterfaceInfo();</span>
+<span class="nc" id="L180">        BeanUtils.copyProperties(userInterfaceInfoQueryRequest, userInterfaceInfoQuery);</span>
+<span class="nc" id="L181">        long current = userInterfaceInfoQueryRequest.getCurrent();</span>
+<span class="nc" id="L182">        long size = userInterfaceInfoQueryRequest.getPageSize();</span>
+<span class="nc" id="L183">        String sortField = userInterfaceInfoQueryRequest.getSortField();</span>
+<span class="nc" id="L184">        String sortOrder = userInterfaceInfoQueryRequest.getSortOrder();</span>
+        // 限制爬虫
+<span class="nc bnc" id="L186" title="All 2 branches missed.">        if (size &gt; 50) {</span>
+<span class="nc" id="L187">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L189">        QueryWrapper&lt;UserInterfaceInfo&gt; queryWrapper = new QueryWrapper&lt;&gt;(userInterfaceInfoQuery);</span>
+<span class="nc" id="L190">        queryWrapper.orderBy(StringUtils.isNotBlank(sortField),</span>
+<span class="nc" id="L191">                sortOrder.equals(CommonConstant.SORT_ORDER_ASC), sortField);</span>
+<span class="nc" id="L192">        Page&lt;UserInterfaceInfo&gt; userInterfaceInfoPage = userInterfaceInfoService.page(new Page&lt;&gt;(current, size), queryWrapper);</span>
+<span class="nc" id="L193">        return ResultUtils.success(userInterfaceInfoPage);</span>
+    }
+
+    // endregion
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

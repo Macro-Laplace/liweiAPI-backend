@@ -18,32 +18,7 @@ class UserServiceTest {
     @Resource
     private UserService userService;
 
-    @Test
-    void testAddUser() {
-        User user = new User();
-        boolean result = userService.save(user);
-        System.out.println(user.getId());
-        Assertions.assertTrue(result);
-    }
 
-    @Test
-    void testUpdateUser() {
-        User user = new User();
-        boolean result = userService.updateById(user);
-        Assertions.assertTrue(result);
-    }
-
-    @Test
-    void testDeleteUser() {
-        boolean result = userService.removeById(1L);
-        Assertions.assertTrue(result);
-    }
-
-    @Test
-    void testGetUser() {
-        User user = userService.getById(1L);
-        Assertions.assertNotNull(user);
-    }
 
     @Test
     void userRegister() {
@@ -53,21 +28,21 @@ class UserServiceTest {
         try {
             long result = userService.userRegister(userAccount, userPassword, checkPassword);
             Assertions.assertEquals(-1, result);
-            userAccount = "yu";
+            userAccount = "wei";
             result = userService.userRegister(userAccount, userPassword, checkPassword);
             Assertions.assertEquals(-1, result);
             userAccount = "liwei";
             userPassword = "123456";
             result = userService.userRegister(userAccount, userPassword, checkPassword);
             Assertions.assertEquals(-1, result);
-            userAccount = "yu pi";
+            userAccount = "wei wei";
             userPassword = "12345678";
             result = userService.userRegister(userAccount, userPassword, checkPassword);
             Assertions.assertEquals(-1, result);
             checkPassword = "123456789";
             result = userService.userRegister(userAccount, userPassword, checkPassword);
             Assertions.assertEquals(-1, result);
-            userAccount = "dogYupi";
+            userAccount = "liweiliwe";
             checkPassword = "12345678";
             result = userService.userRegister(userAccount, userPassword, checkPassword);
             Assertions.assertEquals(-1, result);

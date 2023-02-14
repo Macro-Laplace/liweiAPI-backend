@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Post.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com in liweiAPI-backend Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.liwei.project.model.entity</a> &gt; <span class="el_source">Post.java</span></div><h1>Post.java</h1><pre class="source lang-java linenums">package com.liwei.project.model.entity;
+
+import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ * 帖子
+ *
+ * @TableName post
+ */
+@TableName(value = &quot;post&quot;)
+<span class="nc bnc" id="L15" title="All 150 branches missed.">@Data</span>
+public class Post implements Serializable {
+    /**
+     * id
+     */
+    @TableId(type = IdType.AUTO)
+<span class="nc" id="L21">    private Long id;</span>
+
+    /**
+     * 年龄
+     */
+<span class="nc" id="L26">    private Integer age;</span>
+
+    /**
+     * 性别（0-男, 1-女）
+     */
+<span class="nc" id="L31">    private Integer gender;</span>
+
+    /**
+     * 学历
+     */
+<span class="nc" id="L36">    private String education;</span>
+
+    /**
+     * 地点
+     */
+<span class="nc" id="L41">    private String place;</span>
+
+    /**
+     * 职业
+     */
+<span class="nc" id="L46">    private String job;</span>
+
+    /**
+     * 联系方式
+     */
+<span class="nc" id="L51">    private String contact;</span>
+
+    /**
+     * 感情经历
+     */
+<span class="nc" id="L56">    private String loveExp;</span>
+
+    /**
+     * 内容（个人介绍）
+     */
+<span class="nc" id="L61">    private String content;</span>
+
+    /**
+     * 照片地址
+     */
+<span class="nc" id="L66">    private String photo;</span>
+
+    /**
+     * 状态（0-待审核, 1-通过, 2-拒绝）
+     */
+<span class="nc" id="L71">    private Integer reviewStatus;</span>
+
+    /**
+     * 审核信息
+     */
+<span class="nc" id="L76">    private String reviewMessage;</span>
+
+    /**
+     * 浏览数
+     */
+<span class="nc" id="L81">    private Integer viewNum;</span>
+
+    /**
+     * 点赞数
+     */
+<span class="nc" id="L86">    private Integer thumbNum;</span>
+
+    /**
+     * 创建用户 id
+     */
+<span class="nc" id="L91">    private Long userId;</span>
+
+    /**
+     * 创建时间
+     */
+<span class="nc" id="L96">    private Date createTime;</span>
+
+    /**
+     * 更新时间
+     */
+<span class="nc" id="L101">    private Date updateTime;</span>
+
+    /**
+     * 是否删除
+     */
+    @TableLogic
+<span class="nc" id="L107">    private Integer isDelete;</span>
+
+    @TableField(exist = false)
+    private static final long serialVersionUID = 1L;
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ResultUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com in liweiAPI-backend Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.liwei.project.common</a> &gt; <span class="el_source">ResultUtils.java</span></div><h1>ResultUtils.java</h1><pre class="source lang-java linenums">package com.liwei.project.common;
+
+/**
+ * 返回工具类
+ *
+ * 
+ */
+<span class="nc" id="L8">public class ResultUtils {</span>
+
+    /**
+     * 成功
+     *
+     * @param data
+     * @param &lt;T&gt;
+     * @return
+     */
+    public static &lt;T&gt; BaseResponse&lt;T&gt; success(T data) {
+<span class="nc" id="L18">        return new BaseResponse&lt;&gt;(0, data, &quot;ok&quot;);</span>
+    }
+
+    /**
+     * 失败
+     *
+     * @param errorCode
+     * @return
+     */
+    public static BaseResponse error(ErrorCode errorCode) {
+<span class="nc" id="L28">        return new BaseResponse&lt;&gt;(errorCode);</span>
+    }
+
+    /**
+     * 失败
+     *
+     * @param code
+     * @param message
+     * @return
+     */
+    public static BaseResponse error(int code, String message) {
+<span class="nc" id="L39">        return new BaseResponse(code, null, message);</span>
+    }
+
+    /**
+     * 失败
+     *
+     * @param errorCode
+     * @return
+     */
+    public static BaseResponse error(ErrorCode errorCode, String message) {
+<span class="nc" id="L49">        return new BaseResponse(errorCode.getCode(), null, message);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

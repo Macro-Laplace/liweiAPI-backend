@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com in liweiAPI-backend Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.liwei.project.service.impl</a> &gt; <span class="el_source">UserServiceImpl.java</span></div><h1>UserServiceImpl.java</h1><pre class="source lang-java linenums">package com.liwei.project.service.impl;
+
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.crypto.digest.DigestUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.liwei.project.common.ErrorCode;
+import com.liwei.project.exception.BusinessException;
+import com.liwei.project.mapper.UserMapper;
+import com.liwei.project.service.UserService;
+import com.liwei.liweiAPIcommon.model.entity.User;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import static com.liwei.project.constant.UserConstant.ADMIN_ROLE;
+import static com.liwei.project.constant.UserConstant.USER_LOGIN_STATE;
+
+
+/**
+ * 用户服务实现类
+ *
+ * @author liwei
+ */
+@Service
+<span class="fc" id="L30">@Slf4j</span>
+<span class="fc" id="L31">public class UserServiceImpl extends ServiceImpl&lt;UserMapper, User&gt;</span>
+        implements UserService {
+
+    @Resource
+    private UserMapper userMapper;
+
+    /**
+     * 盐值，混淆密码
+     */
+    private static final String SALT = &quot;liwei&quot;;
+
+    @Override
+    public long userRegister(String userAccount, String userPassword, String checkPassword) {
+        // 1. 校验
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {</span>
+<span class="fc" id="L46">            throw new BusinessException(ErrorCode.PARAMS_ERROR, &quot;参数为空&quot;);</span>
+        }
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        if (userAccount.length() &lt; 4) {</span>
+<span class="nc" id="L49">            throw new BusinessException(ErrorCode.PARAMS_ERROR, &quot;用户账号过短&quot;);</span>
+        }
+<span class="nc bnc" id="L51" title="All 4 branches missed.">        if (userPassword.length() &lt; 8 || checkPassword.length() &lt; 8) {</span>
+<span class="nc" id="L52">            throw new BusinessException(ErrorCode.PARAMS_ERROR, &quot;用户密码过短&quot;);</span>
+        }
+        // 密码和校验密码相同
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        if (!userPassword.equals(checkPassword)) {</span>
+<span class="nc" id="L56">            throw new BusinessException(ErrorCode.PARAMS_ERROR, &quot;两次输入的密码不一致&quot;);</span>
+        }
+<span class="nc" id="L58">        synchronized (userAccount.intern()) {</span>
+            // 账户不能重复
+<span class="nc" id="L60">            QueryWrapper&lt;User&gt; queryWrapper = new QueryWrapper&lt;&gt;();</span>
+<span class="nc" id="L61">            queryWrapper.eq(&quot;userAccount&quot;, userAccount);</span>
+<span class="nc" id="L62">            long count = userMapper.selectCount(queryWrapper);</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">            if (count &gt; 0) {</span>
+<span class="nc" id="L64">                throw new BusinessException(ErrorCode.PARAMS_ERROR, &quot;账号重复&quot;);</span>
+            }
+            // 2. 加密
+<span class="nc" id="L67">            String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());</span>
+            // 3. 分配 accessKey, secretKey
+<span class="nc" id="L69">            String accessKey = DigestUtil.md5Hex(SALT + userAccount + RandomUtil.randomNumbers(5));</span>
+<span class="nc" id="L70">            String secretKey = DigestUtil.md5Hex(SALT + userAccount + RandomUtil.randomNumbers(8));</span>
+            // 4. 插入数据
+<span class="nc" id="L72">            User user = new User();</span>
+<span class="nc" id="L73">            user.setUserAccount(userAccount);</span>
+<span class="nc" id="L74">            user.setUserPassword(encryptPassword);</span>
+<span class="nc" id="L75">            user.setAccessKey(accessKey);</span>
+<span class="nc" id="L76">            user.setSecretKey(secretKey);</span>
+<span class="nc" id="L77">            boolean saveResult = this.save(user);</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">            if (!saveResult) {</span>
+<span class="nc" id="L79">                throw new BusinessException(ErrorCode.SYSTEM_ERROR, &quot;注册失败，数据库错误&quot;);</span>
+            }
+<span class="nc" id="L81">            return user.getId();</span>
+        }
+    }
+
+    @Override
+    public User userLogin(String userAccount, String userPassword, HttpServletRequest request) {
+        // 1. 校验
+<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (StringUtils.isAnyBlank(userAccount, userPassword)) {</span>
+<span class="nc" id="L89">            throw new BusinessException(ErrorCode.PARAMS_ERROR, &quot;参数为空&quot;);</span>
+        }
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (userAccount.length() &lt; 4) {</span>
+<span class="nc" id="L92">            throw new BusinessException(ErrorCode.PARAMS_ERROR, &quot;账号错误&quot;);</span>
+        }
+<span class="nc bnc" id="L94" title="All 2 branches missed.">        if (userPassword.length() &lt; 8) {</span>
+<span class="nc" id="L95">            throw new BusinessException(ErrorCode.PARAMS_ERROR, &quot;密码错误&quot;);</span>
+        }
+        // 2. 加密
+<span class="nc" id="L98">        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());</span>
+        // 查询用户是否存在
+<span class="nc" id="L100">        QueryWrapper&lt;User&gt; queryWrapper = new QueryWrapper&lt;&gt;();</span>
+<span class="nc" id="L101">        queryWrapper.eq(&quot;userAccount&quot;, userAccount);</span>
+<span class="nc" id="L102">        queryWrapper.eq(&quot;userPassword&quot;, encryptPassword);</span>
+<span class="nc" id="L103">        User user = userMapper.selectOne(queryWrapper);</span>
+        // 用户不存在
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (user == null) {</span>
+<span class="nc" id="L106">            log.info(&quot;user login failed, userAccount cannot match userPassword&quot;);</span>
+<span class="nc" id="L107">            throw new BusinessException(ErrorCode.PARAMS_ERROR, &quot;用户不存在或密码错误&quot;);</span>
+        }
+        // 3. 记录用户的登录态
+<span class="nc" id="L110">        request.getSession().setAttribute(USER_LOGIN_STATE, user);</span>
+<span class="nc" id="L111">        return user;</span>
+    }
+
+    /**
+     * 获取当前登录用户
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public User getLoginUser(HttpServletRequest request) {
+        // 先判断是否已登录
+<span class="nc" id="L123">        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);</span>
+<span class="nc" id="L124">        User currentUser = (User) userObj;</span>
+<span class="nc bnc" id="L125" title="All 4 branches missed.">        if (currentUser == null || currentUser.getId() == null) {</span>
+<span class="nc" id="L126">            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);</span>
+        }
+        // 从数据库查询（追求性能的话可以注释，直接走缓存）
+<span class="nc" id="L129">        long userId = currentUser.getId();</span>
+<span class="nc" id="L130">        currentUser = this.getById(userId);</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        if (currentUser == null) {</span>
+<span class="nc" id="L132">            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);</span>
+        }
+<span class="nc" id="L134">        return currentUser;</span>
+    }
+
+    /**
+     * 是否为管理员
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public boolean isAdmin(HttpServletRequest request) {
+        // 仅管理员可查询
+<span class="nc" id="L146">        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);</span>
+<span class="nc" id="L147">        User user = (User) userObj;</span>
+<span class="nc bnc" id="L148" title="All 4 branches missed.">        return user != null &amp;&amp; ADMIN_ROLE.equals(user.getUserRole());</span>
+    }
+
+    /**
+     * 用户注销
+     *
+     * @param request
+     */
+    @Override
+    public boolean userLogout(HttpServletRequest request) {
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        if (request.getSession().getAttribute(USER_LOGIN_STATE) == null) {</span>
+<span class="nc" id="L159">            throw new BusinessException(ErrorCode.OPERATION_ERROR, &quot;未登录&quot;);</span>
+        }
+        // 移除登录态
+<span class="nc" id="L162">        request.getSession().removeAttribute(USER_LOGIN_STATE);</span>
+<span class="nc" id="L163">        return true;</span>
+    }
+
+}
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

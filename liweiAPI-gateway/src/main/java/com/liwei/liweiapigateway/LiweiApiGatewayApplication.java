@@ -40,14 +40,6 @@ public class LiweiApiGatewayApplication {
         return demoService.sayHello2(name);
     }
 
-//    @Bean
-//    public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
-//        return builder.routes()
-//                .route("tobaidu", r -> r.path("/baidu")
-//                        .uri("https://www.baidu.com"))
-//                .route("toyupiicu", r -> r.path("/yupiicu")
-//                        .uri("http://yupi.icu"))
-//                .build();
-//    }
+
 
 }

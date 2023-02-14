@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InterfaceInfoController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com in liweiAPI-backend Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.liwei.project.controller</a> &gt; <span class="el_source">InterfaceInfoController.java</span></div><h1>InterfaceInfoController.java</h1><pre class="source lang-java linenums">package com.liwei.project.controller;
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.gson.Gson;
+import com.liwei.liweiAPIcommon.model.entity.InterfaceInfo;
+import com.liwei.liweiAPIcommon.model.entity.User;
+import com.liwei.liweiapiclientsdk.client.LiApiClient;
+import com.liwei.project.annotation.AuthCheck;
+import com.liwei.project.common.*;
+import com.liwei.project.constant.CommonConstant;
+import com.liwei.project.exception.BusinessException;
+import com.liwei.project.model.dto.interfaceinfo.InterfaceInfoAddRequest;
+import com.liwei.project.model.dto.interfaceinfo.InterfaceInfoInvokeRequest;
+import com.liwei.project.model.dto.interfaceinfo.InterfaceInfoQueryRequest;
+import com.liwei.project.model.dto.interfaceinfo.InterfaceInfoUpdateRequest;
+import com.liwei.project.model.enums.InterfaceInfoStatusEnum;
+import com.liwei.project.service.InterfaceInfoService;
+import com.liwei.project.service.UserService;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+
+/**
+ * 帖子接口
+ *
+ * @author liwei
+ */
+@RestController
+@RequestMapping(&quot;/interfaceInfo&quot;)
+<span class="fc" id="L36">@Slf4j</span>
+<span class="fc" id="L37">public class InterfaceInfoController {</span>
+
+    @Resource
+    private InterfaceInfoService interfaceInfoService;
+
+    @Resource
+    private UserService userService;
+
+    @Resource
+    private LiApiClient liApiClient;
+
+    /**
+     * 创建
+     *
+     * @param interfaceInfoAddRequest
+     * @param request
+     * @return
+     */
+    @PostMapping(&quot;/add&quot;)
+    public BaseResponse&lt;Long&gt; addInterfaceInfo(@RequestBody InterfaceInfoAddRequest interfaceInfoAddRequest, HttpServletRequest request) {
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        if (interfaceInfoAddRequest == null) {</span>
+<span class="nc" id="L58">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L60">        InterfaceInfo interfaceInfo = new InterfaceInfo();</span>
+<span class="nc" id="L61">        BeanUtils.copyProperties(interfaceInfoAddRequest, interfaceInfo);</span>
+        // 校验
+<span class="nc" id="L63">        interfaceInfoService.validInterfaceInfo(interfaceInfo, true);</span>
+<span class="nc" id="L64">        User loginUser = userService.getLoginUser(request);</span>
+<span class="nc" id="L65">        interfaceInfo.setUserId(loginUser.getId());</span>
+<span class="nc" id="L66">        boolean result = interfaceInfoService.save(interfaceInfo);</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        if (!result) {</span>
+<span class="nc" id="L68">            throw new BusinessException(ErrorCode.OPERATION_ERROR);</span>
+        }
+<span class="nc" id="L70">        long newInterfaceInfoId = interfaceInfo.getId();</span>
+<span class="nc" id="L71">        return ResultUtils.success(newInterfaceInfoId);</span>
+    }
+
+    /**
+     * 删除
+     *
+     * @param deleteRequest
+     * @param request
+     * @return
+     */
+    @PostMapping(&quot;/delete&quot;)
+    public BaseResponse&lt;Boolean&gt; deleteInterfaceInfo(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
+<span class="nc bnc" id="L83" title="All 4 branches missed.">        if (deleteRequest == null || deleteRequest.getId() &lt;= 0) {</span>
+<span class="nc" id="L84">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L86">        User user = userService.getLoginUser(request);</span>
+<span class="nc" id="L87">        long id = deleteRequest.getId();</span>
+        // 判断是否存在
+<span class="nc" id="L89">        InterfaceInfo oldInterfaceInfo = interfaceInfoService.getById(id);</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (oldInterfaceInfo == null) {</span>
+<span class="nc" id="L91">            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);</span>
+        }
+        // 仅本人或管理员可删除
+<span class="nc bnc" id="L94" title="All 4 branches missed.">        if (!oldInterfaceInfo.getUserId().equals(user.getId()) &amp;&amp; !userService.isAdmin(request)) {</span>
+<span class="nc" id="L95">            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);</span>
+        }
+<span class="nc" id="L97">        boolean b = interfaceInfoService.removeById(id);</span>
+<span class="nc" id="L98">        return ResultUtils.success(b);</span>
+    }
+
+    /**
+     * 更新
+     *
+     * @param interfaceInfoUpdateRequest
+     * @param request
+     * @return
+     */
+    @PostMapping(&quot;/update&quot;)
+    public BaseResponse&lt;Boolean&gt; updateInterfaceInfo(@RequestBody InterfaceInfoUpdateRequest interfaceInfoUpdateRequest,
+                                            HttpServletRequest request) {
+<span class="nc bnc" id="L111" title="All 4 branches missed.">        if (interfaceInfoUpdateRequest == null || interfaceInfoUpdateRequest.getId() &lt;= 0) {</span>
+<span class="nc" id="L112">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L114">        InterfaceInfo interfaceInfo = new InterfaceInfo();</span>
+<span class="nc" id="L115">        BeanUtils.copyProperties(interfaceInfoUpdateRequest, interfaceInfo);</span>
+        // 参数校验
+<span class="nc" id="L117">        interfaceInfoService.validInterfaceInfo(interfaceInfo, false);</span>
+<span class="nc" id="L118">        User user = userService.getLoginUser(request);</span>
+<span class="nc" id="L119">        long id = interfaceInfoUpdateRequest.getId();</span>
+        // 判断是否存在
+<span class="nc" id="L121">        InterfaceInfo oldInterfaceInfo = interfaceInfoService.getById(id);</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (oldInterfaceInfo == null) {</span>
+<span class="nc" id="L123">            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);</span>
+        }
+        // 仅本人或管理员可修改
+<span class="nc bnc" id="L126" title="All 4 branches missed.">        if (!oldInterfaceInfo.getUserId().equals(user.getId()) &amp;&amp; !userService.isAdmin(request)) {</span>
+<span class="nc" id="L127">            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);</span>
+        }
+<span class="nc" id="L129">        boolean result = interfaceInfoService.updateById(interfaceInfo);</span>
+<span class="nc" id="L130">        return ResultUtils.success(result);</span>
+    }
+
+    /**
+     * 根据 id 获取
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping(&quot;/get&quot;)
+    public BaseResponse&lt;InterfaceInfo&gt; getInterfaceInfoById(long id) {
+<span class="nc bnc" id="L141" title="All 2 branches missed.">        if (id &lt;= 0) {</span>
+<span class="nc" id="L142">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L144">        InterfaceInfo interfaceInfo = interfaceInfoService.getById(id);</span>
+<span class="nc" id="L145">        return ResultUtils.success(interfaceInfo);</span>
+    }
+
+    /**
+     * 获取列表（仅管理员可使用）
+     *
+     * @param interfaceInfoQueryRequest
+     * @return
+     */
+    @AuthCheck(mustRole = &quot;admin&quot;)
+    @GetMapping(&quot;/list&quot;)
+    public BaseResponse&lt;List&lt;InterfaceInfo&gt;&gt; listInterfaceInfo(InterfaceInfoQueryRequest interfaceInfoQueryRequest) {
+<span class="nc" id="L157">        InterfaceInfo interfaceInfoQuery = new InterfaceInfo();</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        if (interfaceInfoQueryRequest != null) {</span>
+<span class="nc" id="L159">            BeanUtils.copyProperties(interfaceInfoQueryRequest, interfaceInfoQuery);</span>
+        }
+<span class="nc" id="L161">        QueryWrapper&lt;InterfaceInfo&gt; queryWrapper = new QueryWrapper&lt;&gt;(interfaceInfoQuery);</span>
+<span class="nc" id="L162">        List&lt;InterfaceInfo&gt; interfaceInfoList = interfaceInfoService.list(queryWrapper);</span>
+<span class="nc" id="L163">        return ResultUtils.success(interfaceInfoList);</span>
+    }
+
+    /**
+     * 分页获取列表
+     *
+     * @param interfaceInfoQueryRequest
+     * @param request
+     * @return
+     */
+    @GetMapping(&quot;/list/page&quot;)
+    public BaseResponse&lt;Page&lt;InterfaceInfo&gt;&gt; listInterfaceInfoByPage(InterfaceInfoQueryRequest interfaceInfoQueryRequest, HttpServletRequest request) {
+<span class="nc bnc" id="L175" title="All 2 branches missed.">        if (interfaceInfoQueryRequest == null) {</span>
+<span class="nc" id="L176">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L178">        InterfaceInfo interfaceInfoQuery = new InterfaceInfo();</span>
+<span class="nc" id="L179">        BeanUtils.copyProperties(interfaceInfoQueryRequest, interfaceInfoQuery);</span>
+<span class="nc" id="L180">        long current = interfaceInfoQueryRequest.getCurrent();</span>
+<span class="nc" id="L181">        long size = interfaceInfoQueryRequest.getPageSize();</span>
+<span class="nc" id="L182">        String sortField = interfaceInfoQueryRequest.getSortField();</span>
+<span class="nc" id="L183">        String sortOrder = interfaceInfoQueryRequest.getSortOrder();</span>
+<span class="nc" id="L184">        String description = interfaceInfoQuery.getDescription();</span>
+        // description 需支持模糊搜索
+<span class="nc" id="L186">        interfaceInfoQuery.setDescription(null);</span>
+        // 限制爬虫
+<span class="nc bnc" id="L188" title="All 2 branches missed.">        if (size &gt; 50) {</span>
+<span class="nc" id="L189">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L191">        QueryWrapper&lt;InterfaceInfo&gt; queryWrapper = new QueryWrapper&lt;&gt;(interfaceInfoQuery);</span>
+<span class="nc" id="L192">        queryWrapper.like(StringUtils.isNotBlank(description), &quot;description&quot;, description);</span>
+<span class="nc" id="L193">        queryWrapper.orderBy(StringUtils.isNotBlank(sortField),</span>
+<span class="nc" id="L194">                sortOrder.equals(CommonConstant.SORT_ORDER_ASC), sortField);</span>
+<span class="nc" id="L195">        Page&lt;InterfaceInfo&gt; interfaceInfoPage = interfaceInfoService.page(new Page&lt;&gt;(current, size), queryWrapper);</span>
+<span class="nc" id="L196">        return ResultUtils.success(interfaceInfoPage);</span>
+    }
+
+    // endregion
+
+    /**
+     * 发布
+     * @param idRequest
+     * @param request
+     * @return
+     */
+    @PostMapping(&quot;/online&quot;)
+    @AuthCheck(mustRole = &quot;admin&quot;)
+    public BaseResponse&lt;Boolean&gt; onlineInterfaceInfo(@RequestBody IdRequest idRequest,
+                                                     HttpServletRequest request) {
+<span class="nc bnc" id="L211" title="All 4 branches missed.">        if (idRequest == null || idRequest.getId() &lt;= 0) {</span>
+<span class="nc" id="L212">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L214">        long id = idRequest.getId();</span>
+        // 判断是否存在
+<span class="nc" id="L216">        InterfaceInfo oldInterfaceInfo = interfaceInfoService.getById(id);</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">        if (oldInterfaceInfo == null) {</span>
+<span class="nc" id="L218">            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);</span>
+        }
+        // 判断该接口是否可以调用
+<span class="nc" id="L221">        com.liwei.liweiapiclientsdk.model.User user = new com.liwei.liweiapiclientsdk.model.User();</span>
+<span class="nc" id="L222">        user.setUsername(&quot;test&quot;);</span>
+<span class="nc" id="L223">        String username = liApiClient.getUsernameByPost(user);</span>
+<span class="nc bnc" id="L224" title="All 2 branches missed.">        if (StringUtils.isBlank(username)) {</span>
+<span class="nc" id="L225">            throw new BusinessException(ErrorCode.SYSTEM_ERROR, &quot;接口验证失败&quot;);</span>
+        }
+        // 仅本人或管理员可修改
+<span class="nc" id="L228">        InterfaceInfo interfaceInfo = new InterfaceInfo();</span>
+<span class="nc" id="L229">        interfaceInfo.setId(id);</span>
+<span class="nc" id="L230">        interfaceInfo.setStatus(InterfaceInfoStatusEnum.ONLINE.getValue());</span>
+<span class="nc" id="L231">        boolean result = interfaceInfoService.updateById(interfaceInfo);</span>
+<span class="nc" id="L232">        return ResultUtils.success(result);</span>
+    }
+
+    /**
+     * 下线
+     *
+     * @param idRequest
+     * @param request
+     * @return
+     */
+    @PostMapping(&quot;/offline&quot;)
+    @AuthCheck(mustRole = &quot;admin&quot;)
+    public BaseResponse&lt;Boolean&gt; offlineInterfaceInfo(@RequestBody IdRequest idRequest,
+                                                      HttpServletRequest request) {
+<span class="nc bnc" id="L246" title="All 4 branches missed.">        if (idRequest == null || idRequest.getId() &lt;= 0) {</span>
+<span class="nc" id="L247">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L249">        long id = idRequest.getId();</span>
+        // 判断是否存在
+<span class="nc" id="L251">        InterfaceInfo oldInterfaceInfo = interfaceInfoService.getById(id);</span>
+<span class="nc bnc" id="L252" title="All 2 branches missed.">        if (oldInterfaceInfo == null) {</span>
+<span class="nc" id="L253">            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);</span>
+        }
+        // 仅本人或管理员可修改
+<span class="nc" id="L256">        InterfaceInfo interfaceInfo = new InterfaceInfo();</span>
+<span class="nc" id="L257">        interfaceInfo.setId(id);</span>
+<span class="nc" id="L258">        interfaceInfo.setStatus(InterfaceInfoStatusEnum.OFFLINE.getValue());</span>
+<span class="nc" id="L259">        boolean result = interfaceInfoService.updateById(interfaceInfo);</span>
+<span class="nc" id="L260">        return ResultUtils.success(result);</span>
+    }
+
+    /**
+     * 测试调用
+     *
+     * @param interfaceInfoInvokeRequest
+     * @param request
+     * @return
+     */
+    @PostMapping(&quot;/invoke&quot;)
+    public BaseResponse&lt;Object&gt; invokeInterfaceInfo(@RequestBody InterfaceInfoInvokeRequest interfaceInfoInvokeRequest,
+                                                    HttpServletRequest request) {
+<span class="nc bnc" id="L273" title="All 4 branches missed.">        if (interfaceInfoInvokeRequest == null || interfaceInfoInvokeRequest.getId() &lt;= 0) {</span>
+<span class="nc" id="L274">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L276">        long id = interfaceInfoInvokeRequest.getId();</span>
+<span class="nc" id="L277">        String userRequestParams = interfaceInfoInvokeRequest.getUserRequestParams();</span>
+        // 判断是否存在
+<span class="nc" id="L279">        InterfaceInfo oldInterfaceInfo = interfaceInfoService.getById(id);</span>
+<span class="nc bnc" id="L280" title="All 2 branches missed.">        if (oldInterfaceInfo == null) {</span>
+<span class="nc" id="L281">            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);</span>
+        }
+<span class="nc bnc" id="L283" title="All 2 branches missed.">        if (oldInterfaceInfo.getStatus() == InterfaceInfoStatusEnum.OFFLINE.getValue()) {</span>
+<span class="nc" id="L284">            throw new BusinessException(ErrorCode.PARAMS_ERROR, &quot;接口已关闭&quot;);</span>
+        }
+<span class="nc" id="L286">        User loginUser = userService.getLoginUser(request);</span>
+<span class="nc" id="L287">        String accessKey = loginUser.getAccessKey();</span>
+<span class="nc" id="L288">        String secretKey = loginUser.getSecretKey();</span>
+<span class="nc" id="L289">        LiApiClient tempClient = new LiApiClient(accessKey, secretKey);</span>
+<span class="nc" id="L290">        Gson gson = new Gson();</span>
+<span class="nc" id="L291">        com.liwei.liweiapiclientsdk.model.User user = gson.fromJson(userRequestParams, com.liwei.liweiapiclientsdk.model.User.class);</span>
+<span class="nc" id="L292">        String usernameByPost = tempClient.getUsernameByPost(user);</span>
+<span class="nc" id="L293">        return ResultUtils.success(usernameByPost);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

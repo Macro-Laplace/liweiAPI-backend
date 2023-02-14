@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PostServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com in liweiAPI-backend Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.liwei.project.service.impl</a> &gt; <span class="el_source">PostServiceImpl.java</span></div><h1>PostServiceImpl.java</h1><pre class="source lang-java linenums">package com.liwei.project.service.impl;
+
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.liwei.project.common.ErrorCode;
+import com.liwei.project.exception.BusinessException;
+import com.liwei.project.mapper.PostMapper;
+import com.liwei.project.model.entity.Post;
+import com.liwei.project.model.enums.PostGenderEnum;
+import com.liwei.project.model.enums.PostReviewStatusEnum;
+import com.liwei.project.service.PostService;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+
+/**
+ * @author liweili
+ * @description 针对表【post(帖子)】的数据库操作Service实现
+ */
+@Service
+<span class="fc" id="L20">public class PostServiceImpl extends ServiceImpl&lt;PostMapper, Post&gt; implements PostService {</span>
+
+    @Override
+    public void validPost(Post post, boolean add) {
+<span class="nc bnc" id="L24" title="All 2 branches missed.">        if (post == null) {</span>
+<span class="nc" id="L25">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc" id="L27">        Integer age = post.getAge();</span>
+<span class="nc" id="L28">        Integer gender = post.getGender();</span>
+<span class="nc" id="L29">        String content = post.getContent();</span>
+<span class="nc" id="L30">        String job = post.getJob();</span>
+<span class="nc" id="L31">        String place = post.getPlace();</span>
+<span class="nc" id="L32">        String education = post.getEducation();</span>
+<span class="nc" id="L33">        String loveExp = post.getLoveExp();</span>
+<span class="nc" id="L34">        Integer reviewStatus = post.getReviewStatus();</span>
+        // 创建时，所有参数必须非空
+<span class="nc bnc" id="L36" title="All 2 branches missed.">        if (add) {</span>
+<span class="nc bnc" id="L37" title="All 4 branches missed.">            if (StringUtils.isAnyBlank(content, job, place, education, loveExp) || ObjectUtils.anyNull(age, gender)) {</span>
+<span class="nc" id="L38">                throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+            }
+        }
+<span class="nc bnc" id="L41" title="All 4 branches missed.">        if (StringUtils.isNotBlank(content) &amp;&amp; content.length() &gt; 8192) {</span>
+<span class="nc" id="L42">            throw new BusinessException(ErrorCode.PARAMS_ERROR, &quot;内容过长&quot;);</span>
+        }
+<span class="nc bnc" id="L44" title="All 4 branches missed.">        if (reviewStatus != null &amp;&amp; !PostReviewStatusEnum.getValues().contains(reviewStatus)) {</span>
+<span class="nc" id="L45">            throw new BusinessException(ErrorCode.PARAMS_ERROR);</span>
+        }
+<span class="nc bnc" id="L47" title="All 6 branches missed.">        if (age != null &amp;&amp; (age &lt; 18 || age &gt; 100)) {</span>
+<span class="nc" id="L48">            throw new BusinessException(ErrorCode.PARAMS_ERROR, &quot;年龄不符合要求&quot;);</span>
+        }
+<span class="nc bnc" id="L50" title="All 4 branches missed.">        if (gender != null &amp;&amp; !PostGenderEnum.getValues().contains(gender)) {</span>
+<span class="nc" id="L51">            throw new BusinessException(ErrorCode.PARAMS_ERROR, &quot;性别不符合要求&quot;);</span>
+        }
+<span class="nc" id="L53">    }</span>
+}
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
