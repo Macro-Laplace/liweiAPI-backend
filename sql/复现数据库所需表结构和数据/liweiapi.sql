@@ -1,17 +1,17 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : localhost
+ Source Server         : 华为
  Source Server Type    : MySQL
- Source Server Version : 80026
- Source Host           : localhost:3306
+ Source Server Version : 80024
+ Source Host           : 124.70.132.46:3306
  Source Schema         : liweiapi
 
  Target Server Type    : MySQL
- Target Server Version : 80026
+ Target Server Version : 80024
  File Encoding         : 65001
 
- Date: 14/02/2023 11:01:58
+ Date: 16/02/2023 16:32:55
 */
 
 SET NAMES utf8mb4;
@@ -41,7 +41,7 @@ CREATE TABLE `interface_info`  (
 -- ----------------------------
 -- Records of interface_info
 -- ----------------------------
-INSERT INTO `interface_info` VALUES (1, 'getUsreNameByPost', '获取用户名', 'http://localhost:8123/api/name/user', '{\n\"Content-Type\": \"application/json\"\n}', '{\n\"Content-Type\": \"application/json\"\n}', 1, 'post', 1, '2023-02-08 16:09:30', '2023-02-14 10:33:43', 0, '[\n {\n\"username\": \"string\"\n }\n]');
+INSERT INTO `interface_info` VALUES (1, 'getAddressByPhoneNumber', '获取手机号属地', 'http://43.139.212.49:8123/api/name/user', '{\n\"Content-Type\": \"application/json\"\n}', '{\n\"Content-Type\": \"application/json\"\n}', 1, 'post', 1, '2023-02-08 16:09:30', '2023-02-16 16:26:44', 0, ' {\n\"phoneNumber\": \"string\"\n }\n示例\n{\n\"phoneNumber\": \"18396279786\"\n }\n');
 INSERT INTO `interface_info` VALUES (2, 'getWeatherByAddress', '暂未开发，敬请期待', 'http://localhost:8123/api/weather', '{\n\"Content-Type\": \"application/json\"\n}', '{\n\"Content-Type\": \"application/json\"\n}', 0, 'post', 3982575846, '2023-02-08 16:09:30', '2023-02-14 10:36:43', 0, '[\n {\n\"adress\": \"string\"\n }\n]');
 INSERT INTO `interface_info` VALUES (3, 'getImageRandom', '暂未开发，尽请期待', 'www.rosaria-kilback.io', '{\n\"Content-Type\": \"application/json\"\n}', '{\n\"Content-Type\": \"application/json\"\n}', 0, 'get', 121776355, '2023-02-08 16:09:30', '2023-02-14 10:38:37', 0, '[\n {\n }\n]');
 INSERT INTO `interface_info` VALUES (4, 'getImageRandom', '暂未开发，尽请期待', 'www.norris-bergstrom.biz', '{\n\"Content-Type\": \"application/json\"\n}', '{\n\"Content-Type\": \"application/json\"\n}', 0, '潘擎宇', 740, '2023-02-08 16:09:30', '2023-02-14 10:41:09', 0, '[\n {\n }\n]');
@@ -86,7 +86,7 @@ CREATE TABLE `post`  (
   `updateTime` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
   `isDelete` tinyint(0) NOT NULL DEFAULT 0 COMMENT '是否删除',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '帖子' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '帖子' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of post
@@ -139,7 +139,7 @@ CREATE TABLE `user_interface_info`  (
 -- ----------------------------
 -- Records of user_interface_info
 -- ----------------------------
-INSERT INTO `user_interface_info` VALUES (1, 1, 1, 48, 91, 1, '2023-02-06 15:02:00', '2023-02-14 10:55:41', 0);
+INSERT INTO `user_interface_info` VALUES (1, 1, 1, 100, 39, 1, '2023-02-06 15:02:00', '2023-02-16 16:31:45', 0);
 INSERT INTO `user_interface_info` VALUES (2, 1, 2, 14, 9, 1, '2023-02-05 19:15:22', '2023-02-14 09:34:39', 0);
 INSERT INTO `user_interface_info` VALUES (3, 1, 3, 23, 24, 1, '2023-02-02 19:15:57', '2023-02-14 09:34:39', 0);
 
