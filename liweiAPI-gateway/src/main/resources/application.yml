@@ -20,7 +20,7 @@ logging:
 
 dubbo:
   application:
-    name: dubbo-springboot-demo-provider
+    name: dubbo-springboot-demo-consumer
     qosPort: 33333
     qosEnable: true
     qosAcceptForeignIp: false
